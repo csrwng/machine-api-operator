@@ -84,6 +84,36 @@ func (optr *Operator) syncCustomResourceDefinitions() error {
 	return nil
 }
 
+func (optr *Operator) syncMasterMachines(config render.OperatorConfig) error {
+	var machines []string
+	var masterCount int
+	switch provider := config.Provider; provider {
+	case providerAWS:
+		machines = []string{
+			"machines/aws/master.machine.yaml",
+		}
+		masterCount = config.AWS.MasterReplicas
+	case providerLibvirt:
+		// TODO: Implement libvirt machine
+	}
+	for _, machine := range machines {
+
+		for i := 0; i < masterCount; i++ {
+			machineBytes, err := render.PopulateTemplateWithIndex(&config, i, machine)
+			if err != nil {
+				return err
+			}
+			p := resourceread.ReadMachineV1alphaOrDie(machineBytes)
+			_, _, err = resourceapply.ApplyMachine(optr.clusterAPIClient, p)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (optr *Operator) syncMachineSets(config render.OperatorConfig) error {
 	var machineSets []string
 	switch provider := config.Provider; provider {

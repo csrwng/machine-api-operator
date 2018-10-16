@@ -5,6 +5,13 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/pkg/apis/cluster/v1alpha1"
 )
 
+// EnsureMachine ensures that the existing matches the required.
+// modified is set to true when existing had to be updated with required.
+func EnsureMachine(modified *bool, existing *clusterv1.Machine, required *clusterv1.Machine) {
+	EnsureObjectMeta(modified, &existing.ObjectMeta, required.ObjectMeta)
+	ensureMachineSpec(modified, &existing.Spec, required.Spec)
+}
+
 // EnsureMachineSet ensures that the existing matches the required.
 // modified is set to true when existing had to be updated with required.
 func EnsureMachineSet(modified *bool, existing *clusterv1.MachineSet, required *clusterv1.MachineSet) {
@@ -26,6 +33,15 @@ func ensureMachineSetSpec(modified *bool, existing *clusterv1.MachineSetSpec, re
 		existing.Template.Spec.Taints = required.Template.Spec.Taints
 	}
 	// TODO(vikasc): verify if other fields also needs to be synced
+}
+
+// ensureMachineSpec ensures that the existing matches the required.
+// modified is set to true when existing had to be updated with required.
+func ensureMachineSpec(modified *bool, existing *clusterv1.MachineSpec, required clusterv1.MachineSpec) {
+	if !equality.Semantic.DeepEqual(existing.Taints, required.Taints) {
+		*modified = true
+		existing.Taints = required.Taints
+	}
 }
 
 // EnsureCluster ensures that the existing matches the required.

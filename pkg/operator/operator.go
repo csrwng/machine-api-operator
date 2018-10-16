@@ -176,6 +176,12 @@ func (optr *Operator) Run(workers int, stopCh <-chan struct{}) {
 				return false, nil
 			}
 			glog.Info("Created MachineSet object Successfully")
+			glog.Info("Trying to deploy Master Machine objects")
+			if err := optr.syncMasterMachines(*operatorConfig); err != nil {
+				glog.Infof("Cannot create Master Machine, retrying: %v", err)
+				return false, nil
+			}
+			glog.Info("Created Master Machine objects Successfully")
 			return true, nil
 		})
 		if err != nil {

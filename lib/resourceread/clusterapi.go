@@ -17,6 +17,15 @@ func init() {
 	}
 }
 
+// ReadMachineV1alphaOrDie reads Machine object from bytes. Panics on error.
+func ReadMachineV1alphaOrDie(objBytes []byte) *clusterv1alpha.Machine {
+	requiredObj, err := runtime.Decode(clusterAPICodecs.UniversalDecoder(clusterv1alpha.SchemeGroupVersion), objBytes)
+	if err != nil {
+		panic(err)
+	}
+	return requiredObj.(*clusterv1alpha.Machine)
+}
+
 // ReadMachineSetV1alphaOrDie reads MachineSet object from bytes. Panics on error.
 func ReadMachineSetV1alphaOrDie(objBytes []byte) *clusterv1alpha.MachineSet {
 	requiredObj, err := runtime.Decode(clusterAPICodecs.UniversalDecoder(clusterv1alpha.SchemeGroupVersion), objBytes)

@@ -19,7 +19,7 @@ const (
 // Manifests takes the config object that contains the templated value,
 // and uses that to render the templated manifest.
 // 'config' must be non-nil, 'data' is the rawdata of a manifest file.
-func Manifests(config *OperatorConfig, data []byte) ([]byte, error) {
+func Manifests(config *OperatorConfig, index int, data []byte) ([]byte, error) {
 	if config == nil {
 		return nil, fmt.Errorf("no config is given")
 	}
@@ -36,9 +36,11 @@ func Manifests(config *OperatorConfig, data []byte) ([]byte, error) {
 	tmplData := struct {
 		OperatorConfig
 		EncodedAPIServiceCA string
+		Index               int
 	}{
 		OperatorConfig:      *config,
 		EncodedAPIServiceCA: encodedCA,
+		Index:               index,
 	}
 
 	if err := tmpl.Execute(buf, tmplData); err != nil {
@@ -50,13 +52,18 @@ func Manifests(config *OperatorConfig, data []byte) ([]byte, error) {
 
 // PopulateTemplate takes the config object, and uses that to render the templated manifest
 func PopulateTemplate(config *OperatorConfig, path string) ([]byte, error) {
+	return PopulateTemplateWithIndex(config, 0, path)
+}
+
+// PopulateTemplateWithIndex takes the config object, and uses that to render the templated manifest
+func PopulateTemplateWithIndex(config *OperatorConfig, index int, path string) ([]byte, error) {
 
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		glog.Fatalf("Error reading %#v", err)
 	}
 
-	populatedData, err := Manifests(config, data)
+	populatedData, err := Manifests(config, index, data)
 	if err != nil {
 		glog.Fatalf("Unable to render manifests %q: %v", data, err)
 	}

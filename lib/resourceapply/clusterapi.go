@@ -9,6 +9,28 @@ import (
 	"sigs.k8s.io/cluster-api/pkg/client/clientset_generated/clientset"
 )
 
+// ApplyMachine applies the required machine to the cluster.
+func ApplyMachine(client clientset.Interface, required *clusterv1alpha.Machine) (*clusterv1alpha.Machine, bool, error) {
+	v1alphaClient := client.ClusterV1alpha1()
+	existing, err := v1alphaClient.Machines(required.GetNamespace()).Get(required.GetName(), metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		actual, err := v1alphaClient.Machines(required.GetNamespace()).Create(required)
+		return actual, true, err
+	}
+	if err != nil {
+		return nil, false, err
+	}
+
+	modified := resourcemerge.BoolPtr(false)
+	resourcemerge.EnsureMachine(modified, existing, required)
+	if !*modified {
+		return existing, false, nil
+	}
+
+	actual, err := v1alphaClient.Machines(required.GetNamespace()).Update(existing)
+	return actual, true, err
+}
+
 // ApplyMachineSet applies the required machineset to the cluster.
 func ApplyMachineSet(client clientset.Interface, required *clusterv1alpha.MachineSet) (*clusterv1alpha.MachineSet, bool, error) {
 	v1alphaClient := client.ClusterV1alpha1()

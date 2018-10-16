@@ -32,15 +32,17 @@ type LibvirtConfig struct {
 
 // AWSConfig contains specific config for AWS
 type AWSConfig struct {
-	ClusterName           string `json:"clusterName"`
-	ClusterID             string `json:"clusterID"`
-	Region                string `json:"region"`
-	AvailabilityZone      string `json:"availabilityZone"`
-	Image                 string `json:"image"`
-	ReleaseChannel        string `json:"releaseChannel"`
-	ContainerLinuxVersion string `json:"containerLinuxVersion"`
-	Replicas              string `json:"replicas"`
-	WithCreds             bool   `json:"withCreds"`
+	ClusterName             string   `json:"clusterName"`
+	ClusterID               string   `json:"clusterID"`
+	Region                  string   `json:"region"`
+	AvailabilityZone        string   `json:"availabilityZone"`
+	Image                   string   `json:"image"`
+	ReleaseChannel          string   `json:"releaseChannel"`
+	ContainerLinuxVersion   string   `json:"containerLinuxVersion"`
+	Replicas                string   `json:"replicas"`
+	MasterReplicas          int      `json:"masterReplicas"`
+	MasterAvailabilityZones []string `json:"masterAvailabilityZones"`
+	WithCreds               bool     `json:"withCreds"`
 }
 
 type OpenStackConfig struct {

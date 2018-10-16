@@ -20,7 +20,7 @@ func testRenderManifest(t *testing.T, filename string, config *OperatorConfig, e
 		t.Fatalf("Failed to ingest manifest %q: %v", manifest, err)
 	}
 
-	actual, err := Manifests(config, data)
+	actual, err := Manifests(config, 0, data)
 	if err != nil {
 		t.Fatalf("Failed to render manifest template: %v", err)
 	}
